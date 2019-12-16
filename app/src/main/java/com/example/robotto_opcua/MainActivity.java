@@ -1,15 +1,28 @@
 package com.example.robotto_opcua;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.opcfoundation.ua.application.Application;
 import org.opcfoundation.ua.application.Client;
@@ -34,17 +47,23 @@ import org.opcfoundation.ua.transport.security.KeyPair;
 import org.opcfoundation.ua.transport.security.SecurityPolicy;
 import org.opcfoundation.ua.utils.CertificateUtils;
 import org.opcfoundation.ua.utils.EndpointUtil;
+import org.w3c.dom.Text;
 
 import java.security.Security;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements
         AddConnectionDialog.AddConnectionDialogListener {
 
     TextView textView;
-    Button Stop_btn;
+    ListView connection_list;
     LinearLayout AddConnectionbtn;
     boolean Run;
+    String[] sName, sURI;
+    Integer NumberOfConnections;
+    DatabaseHelper opcRobotto_db;
+    SQLiteDatabase robottodb;
 
     // Bouncy Castle encryption
     static { Security.insertProviderAt(new
@@ -56,6 +75,42 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         AddConnectionbtn = findViewById(R.id.AddConnectlayout);
+        connection_list = findViewById(R.id.connections);
+        textView = findViewById(R.id.textview);
+
+        opcRobotto_db = new DatabaseHelper(this);
+        robottodb = opcRobotto_db.getWritableDatabase();
+
+        Cursor data = opcRobotto_db.getConnectionList();
+        NumberOfConnections = data.getCount();
+        ArrayList<String> alName = new ArrayList<>();
+        ArrayList<String> alURI = new ArrayList<>();
+
+        if(NumberOfConnections == 0){
+            textView.setText("No Connections Available.");
+        }
+        else{
+            while(data.moveToNext()){
+                alName.add(data.getString(1));
+                alURI.add(data.getString(2));
+            }
+            sName = alName.toArray(new String[alName.size()]);
+            sURI = alURI.toArray(new String[alURI.size()]);
+            listAdapter adapter = new listAdapter(this, sName, sURI);
+            connection_list.setAdapter(adapter);
+        }
+
+        connection_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                for(int i = 0; i < NumberOfConnections; i++){
+                    if(position == i){
+                        Toast.makeText(MainActivity.this, sName[position], Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
 
         AddConnectionbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +121,33 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    class listAdapter extends ArrayAdapter<String>{
+        Context context;
+        String[] rTitle;
+        String[] rSubtitle;
+
+        listAdapter (Context context, String[] title, String[] subtitle){
+            super(context, R.layout.connections_list, R.id.srvName, title);
+            this.context = context;
+            this.rTitle = title;
+            this.rSubtitle = subtitle;
+        }
+
+        @NonNull
+        @Override
+        public View getView(int Position, @Nullable View convertView, @NonNull ViewGroup parent){
+            LayoutInflater layoutinflater = (LayoutInflater)getApplicationContext().getSystemService(context.LAYOUT_INFLATER_SERVICE);
+            View connection_list = layoutinflater.inflate(R.layout.connections_list, parent, false);
+            TextView srvName = connection_list.findViewById(R.id.srvName);
+            TextView srvURI = connection_list.findViewById(R.id.srvURI);
+
+            srvName.setText(rTitle[Position]);
+            srvURI.setText(rSubtitle[Position]);
+
+            return connection_list;
+        }
+    }
+
     public void openDialog(){
         AddConnectionDialog addConnectionDialog = new AddConnectionDialog();
         addConnectionDialog.show(getSupportFragmentManager(), "Add New Connection");
@@ -73,9 +155,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void applyTexts(String ServerName, String ServerURI) {
-        //setText to TextView of ServerName
-        //setText to TextView of ServerURI
+    public void getData(String ServerName, String ServerURI) {
+        boolean isInserted = opcRobotto_db.newconnectiondata(ServerName, ServerURI);
+        if(isInserted)
+            Toast.makeText(MainActivity.this, "New Connection added", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(MainActivity.this, "Can't add New Connection", Toast.LENGTH_LONG).show();
 
     }
 

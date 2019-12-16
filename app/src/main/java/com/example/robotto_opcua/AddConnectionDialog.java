@@ -36,7 +36,7 @@ public class AddConnectionDialog extends AppCompatDialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         String ServerName = editTextServerName.getText().toString();
                         String ServerURI = editTextServerURI.getText().toString();
-                        listener.applyTexts(ServerName, ServerURI);
+                        listener.getData(ServerName, ServerURI);
                     }
                 });
 
@@ -60,6 +60,6 @@ public class AddConnectionDialog extends AppCompatDialogFragment {
     }
 
     public interface AddConnectionDialogListener{
-        void applyTexts(String ServerName, String ServerURI);
+        void getData(String ServerName, String ServerURI);
     }
 }

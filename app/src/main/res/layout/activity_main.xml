@@ -37,6 +37,7 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/colorPrimaryDark"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -46,18 +47,21 @@
         android:layout_below="@+id/ConnectionList"
         android:background="@color/colorPrimaryDark" />
 
-    <ScrollView
+    <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignLeft="@+id/scrolldivider"
-        android:layout_alignRight="@+id/scrolldivider"
-        android:layout_below="@+id/scrolldivider">
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:id="@+id/connections" />
-    </ScrollView>
+        android:id="@+id/connections"
+        android:layout_below="@+id/scrolldivider"
+        android:layout_alignEnd="@id/scrolldivider"
+        android:layout_alignStart="@id/scrolldivider">
+    </ListView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textAlignment="center"
+        android:id="@+id/textview"
+        android:textSize="16sp" />
 
 </RelativeLayout>
