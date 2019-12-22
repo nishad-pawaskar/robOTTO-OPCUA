@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -59,11 +60,14 @@ public class MainActivity extends AppCompatActivity implements
     TextView textView;
     ListView connection_list;
     LinearLayout AddConnectionbtn;
-    boolean Run;
+    public static boolean Run;
     String[] sName, sURI;
+    public static String endpturi;
     Integer NumberOfConnections;
     DatabaseHelper opcRobotto_db;
     SQLiteDatabase robottodb;
+
+    public static final String SIM_RESULT = "com.example.robotto_opcua.SIM_RESULT";
 
     // Bouncy Castle encryption
     static { Security.insertProviderAt(new
@@ -74,10 +78,10 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         AddConnectionbtn = findViewById(R.id.AddConnectlayout);
         connection_list = findViewById(R.id.connections);
         textView = findViewById(R.id.textview);
-
         opcRobotto_db = new DatabaseHelper(this);
         robottodb = opcRobotto_db.getWritableDatabase();
 
@@ -105,7 +109,10 @@ public class MainActivity extends AppCompatActivity implements
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 for(int i = 0; i < NumberOfConnections; i++){
                     if(position == i){
-                        Toast.makeText(MainActivity.this, sName[position], Toast.LENGTH_SHORT).show();
+                        endpturi = sURI[position];
+                        Toast.makeText(MainActivity.this, sName[position],
+                                Toast.LENGTH_SHORT).show();
+                        new ConnectionAsyncTask().execute();
                     }
                 }
             }
@@ -164,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    private class ConnectionAsyncTask extends AsyncTask<String, String, String> {
+    public class ConnectionAsyncTask extends AsyncTask<String, String, String> {
 
 
         @Override
@@ -212,8 +219,7 @@ public class MainActivity extends AppCompatActivity implements
                         myClientApplicationInstanceCertificate);
 
                 // Discover endpoints
-                EndpointDescription[] endpoints = myClient.discoverEndpoints(
-                        "opc.tcp://10.0.2.2:53530/OPCUA/SimulationServer");
+                EndpointDescription[] endpoints = myClient.discoverEndpoints(endpturi);
 
                 // Filter out all but opc.tcp protocol endpoints
                 endpoints = EndpointUtil.selectByProtocol(endpoints, "opc.tcp");
@@ -234,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements
                 // Choose one endpoint.
                 EndpointDescription endpoint = endpoints[endpoints.length - 1];
                 System.out.println("Endpoint Selected ");
-                endpoint.setEndpointUrl("opc.tcp://10.0.2.2:53530/OPCUA/SimulationServer");
+                endpoint.setEndpointUrl(endpturi);
                 //System.out.println("new Endpoint url: " + endpoint.getEndpointUrl());
 //
 //                System.out.println("Security Level " + endpoint.getSecurityPolicyUri());
@@ -277,7 +283,9 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(String result){
-            textView.setText(result);
+            Intent intent = new Intent(MainActivity.this, Activity1.class);
+            intent.putExtra(SIM_RESULT, result);
+            startActivity(intent);
             if (Run){
                 new ConnectionAsyncTask().execute();
             }
