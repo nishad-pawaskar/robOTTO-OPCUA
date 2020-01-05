@@ -60,13 +60,14 @@ public class MainActivity extends AppCompatActivity implements
     TextView textView;
     ListView connection_list;
     LinearLayout AddConnectionbtn;
-    public static boolean Run;
     String[] sName, sURI;
-    public static String endpturi;
+    String endpturi;
+    Boolean connected;
     Integer NumberOfConnections;
     DatabaseHelper opcRobotto_db;
     SQLiteDatabase robottodb;
-
+    public static EndpointDescription endpoint;
+    public static ApplicationDescription applicationDescription;
     public static final String SIM_RESULT = "com.example.robotto_opcua.SIM_RESULT";
 
     // Bouncy Castle encryption
@@ -103,29 +104,23 @@ public class MainActivity extends AppCompatActivity implements
             listAdapter adapter = new listAdapter(this, sName, sURI);
             connection_list.setAdapter(adapter);
         }
-
         connection_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 for(int i = 0; i < NumberOfConnections; i++){
                     if(position == i){
                         endpturi = sURI[position];
-                        Toast.makeText(MainActivity.this, sName[position],
-                                Toast.LENGTH_SHORT).show();
                         new ConnectionAsyncTask().execute();
                     }
                 }
             }
         });
-
-
         AddConnectionbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openDialog();
             }
         });
-
     }
 
     class listAdapter extends ArrayAdapter<String>{
@@ -158,7 +153,6 @@ public class MainActivity extends AppCompatActivity implements
     public void openDialog(){
         AddConnectionDialog addConnectionDialog = new AddConnectionDialog();
         addConnectionDialog.show(getSupportFragmentManager(), "Add New Connection");
-
     }
 
     @Override
@@ -172,36 +166,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public class ConnectionAsyncTask extends AsyncTask<String, String, String> {
-
-
         @Override
         protected String doInBackground(String... strings) {
-
-            // Declare Entities
-//            Application myClientApplication = new Application();
-//            System.out.println("myClientApplication: " + myClientApplication);
-//            KeyPair myClientApplicationInstanceCertificate;
-//            String certificateCommonName = "Android_Client";
-//            System.out.println("Generating new Certificate for Client using CN: " +
-//                    certificateCommonName);
-//            String applicationUri = myClientApplication.getApplicationUri();
-//            System.out.println("Application URI: " + applicationUri);
-//            String organisation = "Sample Organisation";
-//            int validityTime = 3650;
-//
-//            // Create Client Application Instance Certificate
-//            try {
-//                myClientApplicationInstanceCertificate =
-//                        CertificateUtils.createApplicationInstanceCertificate(certificateCommonName,
-//                                organisation, applicationUri, validityTime);
-//
-//                //Create Client
-//                Client myClient = new Client(myClientApplication);
-//                myClientApplication.addApplicationInstanceCertificate(
-//                            myClientApplicationInstanceCertificate);
-
             // Create Application Description
-            ApplicationDescription applicationDescription = new ApplicationDescription();
+            applicationDescription = new ApplicationDescription();
             applicationDescription.setApplicationName(new LocalizedText("AndroidClient",
                     Locale.ENGLISH));
             applicationDescription.setApplicationUri(
@@ -227,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements
                 // Filter out all but Signed & Encrypted endpoints
                 endpoints = EndpointUtil.selectByMessageSecurityMode(endpoints,
                         MessageSecurityMode.None);
-//
+
                 // Filter out all but Basic256Sha256 encryption endpoints
 //                endpoints = EndpointUtil.selectBySecurityPolicy(endpoints,
 //                        SecurityPolicy.BASIC256SHA256);
@@ -238,56 +206,35 @@ public class MainActivity extends AppCompatActivity implements
                 //EndpointDescription endpoint = endpoints[0];
 
                 // Choose one endpoint.
-                EndpointDescription endpoint = endpoints[endpoints.length - 1];
+                endpoint = endpoints[endpoints.length - 1];
                 System.out.println("Endpoint Selected ");
                 endpoint.setEndpointUrl(endpturi);
-                //System.out.println("new Endpoint url: " + endpoint.getEndpointUrl());
-//
-//                System.out.println("Security Level " + endpoint.getSecurityPolicyUri());
-//                System.out.println("Security Mode " + endpoint.getSecurityMode());
-//
-//
+
                 //Create the session from the chosen endpoint
                 SessionChannel mySession = myClient.createSessionChannel(endpoint);
-//                System.out.println("Session Channel: " + mySession);
-//                // Activate the session.
+                // Activate the session.
                 mySession.activate("Android_Client", "pass@345");
-//
-                // Read and write variables here
-                NodeId nodeId = new NodeId(3, "Counter");
-                // Read a variable
-                ReadValueId readValueId = new ReadValueId(nodeId, Attributes.Value, null,
-                        null);
-                ReadResponse res = mySession.Read(null, 500.0,
-                        TimestampsToReturn.Source, readValueId);
-                DataValue[] dataValue = res.getResults();
-                String result = dataValue[0].getValue().toString();
-
-//                // Write a variable. In this case the same variable read is set to 0
-//                WriteValue writeValue = new WriteValue(nodeId, Attributes.Value, null,
-//                        new DataValue(new Variant(0)));
-//                WriteResponse wresponse =  mySession.Write(null, writeValue);
-//                System.out.println(wresponse);
-
 
                 // Close the session
                 mySession.close();
                 mySession.closeAsync();
+                connected = true;
 
-                return result;
+                return "Anything";
             } catch (Exception e){
                 e.printStackTrace();
+                connected = false;
                 return "Connection Failed!!";
             }
         }
-
         @Override
         protected void onPostExecute(String result){
-            Intent intent = new Intent(MainActivity.this, Activity1.class);
-            intent.putExtra(SIM_RESULT, result);
-            startActivity(intent);
-            if (Run){
-                new ConnectionAsyncTask().execute();
+            if(connected){
+                Intent intent = new Intent(MainActivity.this, Activity1.class);
+                intent.putExtra(SIM_RESULT, result);
+                startActivity(intent);
+            }else {
+                Toast.makeText(MainActivity.this,"Connection Failed. Try again later!!", Toast.LENGTH_LONG).show();
             }
         }
     }

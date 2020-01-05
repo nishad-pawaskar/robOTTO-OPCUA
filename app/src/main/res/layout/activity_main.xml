@@ -47,6 +47,13 @@
         android:layout_below="@+id/ConnectionList"
         android:background="@color/colorPrimaryDark" />
 
+    <!--<ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/connecting_sym"
+        android:layout_below="@+id/scrolldivider"
+        android:layout_centerInParent="true"
+        android:padding="50dp"/>-->
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
