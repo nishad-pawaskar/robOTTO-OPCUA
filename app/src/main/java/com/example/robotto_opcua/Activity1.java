@@ -133,7 +133,7 @@ public class Activity1 extends AppCompatActivity {
                 //Browse
                 BrowseDescription browse = new BrowseDescription();
                 //NodeId n = Identifiers.ObjectsFolder;
-                NodeId n = new NodeId(3, 3);
+                NodeId n = new NodeId(3, 24);
                 browse.setNodeId(n);
                 browse.setBrowseDirection(BrowseDirection.Forward);
                 browse.setIncludeSubtypes(true);
@@ -154,6 +154,7 @@ public class Activity1 extends AppCompatActivity {
                 String result = dataValue[0].getValue().toString();
 
 //
+//                double[] value = {7.20, 5.44, 0.00};
                 Object[] value = new Object[3];
                 value[0] = 7.20;
                 value[1] = 5.44;
