@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements
                 //Create the session from the chosen endpoint
                 SessionChannel mySession = myClient.createSessionChannel(endpoint);
                 // Activate the session.
-                mySession.activate("Android_Client", "pass@345");
+                mySession.activate();
 
                 // Close the session
                 mySession.close();

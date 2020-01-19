@@ -14,11 +14,16 @@ import org.opcfoundation.ua.application.SessionChannel;
 import org.opcfoundation.ua.builtintypes.DataValue;
 import org.opcfoundation.ua.builtintypes.LocalizedText;
 import org.opcfoundation.ua.builtintypes.NodeId;
+import org.opcfoundation.ua.builtintypes.UnsignedInteger;
 import org.opcfoundation.ua.builtintypes.Variant;
 import org.opcfoundation.ua.core.ApplicationDescription;
 import org.opcfoundation.ua.core.ApplicationType;
 import org.opcfoundation.ua.core.Attributes;
+import org.opcfoundation.ua.core.BrowseDescription;
+import org.opcfoundation.ua.core.BrowseDirection;
+import org.opcfoundation.ua.core.BrowseResponse;
 import org.opcfoundation.ua.core.EndpointDescription;
+import org.opcfoundation.ua.core.Identifiers;
 import org.opcfoundation.ua.core.MessageSecurityMode;
 import org.opcfoundation.ua.core.ReadResponse;
 import org.opcfoundation.ua.core.ReadValueId;
@@ -121,23 +126,44 @@ public class Activity1 extends AppCompatActivity {
                     SessionChannel mySession = myClient.createSessionChannel(ept);
 ////                System.out.println("Session Channel: " + mySession);
 ////                // Activate the session.
-                mySession.activate("Android_Client", "pass@345");
-//
+                mySession.activate();
+
+
+
+                //Browse
+                BrowseDescription browse = new BrowseDescription();
+                //NodeId n = Identifiers.ObjectsFolder;
+                NodeId n = new NodeId(3, 3);
+                browse.setNodeId(n);
+                browse.setBrowseDirection(BrowseDirection.Forward);
+                browse.setIncludeSubtypes(true);
+                BrowseResponse res3 = mySession.Browse(null, null,
+                        null, browse);
+                //String result = res3.toString();
+                System.out.println("Browse Response:  " + res3);
+
+
                 // Read and write variables here
-                NodeId nodeId = new NodeId(3, "Random");
+//                NodeId nodeId = new NodeId(3, "Random");
                 // Read a variable
-                ReadValueId readValueId = new ReadValueId(nodeId, Attributes.Value, null,
+                ReadValueId readValueId = new ReadValueId(n, Attributes.Value, null,
                         null);
                 ReadResponse res = mySession.Read(null, 500.0,
                         TimestampsToReturn.Source, readValueId);
                 DataValue[] dataValue = res.getResults();
                 String result = dataValue[0].getValue().toString();
+
 //
-////                // Write a variable. In this case the same variable read is set to 0
-//                WriteValue writeValue = new WriteValue(nodeId, Attributes.Value, null,
-//                        new DataValue(new Variant(5)));
-//               WriteResponse wresponse =  mySession.Write(null, writeValue);
-//                System.out.println(wresponse);
+                Object[] value = new Object[3];
+                value[0] = 7.20;
+                value[1] = 5.44;
+                value[2] = 0.00;
+                // Write a variable. In this case the same variable read is set to 0
+                WriteValue writeValue = new WriteValue(n, Attributes.Value, null,
+                        new DataValue((new Variant(value))));
+                System.out.println("Write Value: " + value.toString());
+                WriteResponse wresponse =  mySession.Write(null, writeValue);
+                System.out.println("Write Response: " + wresponse);
 //
 //
 //                // Close the session
@@ -154,9 +180,9 @@ public class Activity1 extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             text_view.setText(result);
-            if (Run){
-                new ConnectionAsyncTask().execute();
-            }
+//            if (Run){
+//                new ConnectionAsyncTask().execute();
+//            }
         }
     }
 }
