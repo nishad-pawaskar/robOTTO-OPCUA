@@ -14,6 +14,7 @@ import org.opcfoundation.ua.application.SessionChannel;
 import org.opcfoundation.ua.builtintypes.DataValue;
 import org.opcfoundation.ua.builtintypes.LocalizedText;
 import org.opcfoundation.ua.builtintypes.NodeId;
+import org.opcfoundation.ua.builtintypes.StatusCode;
 import org.opcfoundation.ua.builtintypes.UnsignedInteger;
 import org.opcfoundation.ua.builtintypes.Variant;
 import org.opcfoundation.ua.core.ApplicationDescription;
@@ -22,6 +23,10 @@ import org.opcfoundation.ua.core.Attributes;
 import org.opcfoundation.ua.core.BrowseDescription;
 import org.opcfoundation.ua.core.BrowseDirection;
 import org.opcfoundation.ua.core.BrowseResponse;
+import org.opcfoundation.ua.core.CallMethodRequest;
+import org.opcfoundation.ua.core.CallMethodResult;
+import org.opcfoundation.ua.core.CallRequest;
+import org.opcfoundation.ua.core.CallResponse;
 import org.opcfoundation.ua.core.EndpointDescription;
 import org.opcfoundation.ua.core.Identifiers;
 import org.opcfoundation.ua.core.MessageSecurityMode;
@@ -33,6 +38,7 @@ import org.opcfoundation.ua.core.WriteValue;
 import org.opcfoundation.ua.transport.security.KeyPair;
 import org.opcfoundation.ua.utils.EndpointUtil;
 
+import java.util.List;
 import java.util.Locale;
 
 public class Activity1 extends AppCompatActivity {
@@ -133,50 +139,100 @@ public class Activity1 extends AppCompatActivity {
                 //Browse
                 BrowseDescription browse = new BrowseDescription();
                 //NodeId n = Identifiers.ObjectsFolder;
-                NodeId n = new NodeId(3, 24);
+                //NodeId n = new NodeId(2, "Demo.Static.Scalar.Int32");
+                NodeId n = new NodeId(3, "turtle1");
                 browse.setNodeId(n);
                 browse.setBrowseDirection(BrowseDirection.Forward);
                 browse.setIncludeSubtypes(true);
                 BrowseResponse res3 = mySession.Browse(null, null,
                         null, browse);
                 //String result = res3.toString();
-                System.out.println("Browse Response:  " + res3);
+                System.out.println(res3);
+
+                NodeId n1 = new NodeId(3, 2);
 
 
                 // Read and write variables here
 //                NodeId nodeId = new NodeId(3, "Random");
                 // Read a variable
-                ReadValueId readValueId = new ReadValueId(n, Attributes.Value, null,
-                        null);
-                ReadResponse res = mySession.Read(null, 500.0,
-                        TimestampsToReturn.Source, readValueId);
-                DataValue[] dataValue = res.getResults();
-                String result = dataValue[0].getValue().toString();
+//                ReadValueId readValueId = new ReadValueId(n, Attributes.Value, null,
+//                        null);
+//                ReadResponse res = mySession.Read(null, 500.0,
+//                        TimestampsToReturn.Source, readValueId);
+//                DataValue[] dataValue = res.getResults();
+//                String result = dataValue[0].getValue().toString();
+//                System.out.println("\n\nRead Result:  " + result + "\n\n");
 
-//
-//                double[] value = {7.20, 5.44, 0.00};
-                Object[] value = new Object[3];
-                value[0] = 7.20;
-                value[1] = 5.44;
-                value[2] = 0.00;
+
+//                Variant x = new Variant(7.20f);
+//                Variant y = new Variant(5.44f);
+//                Variant theta = new Variant(0.0f);
+                //Variant[] v = {x, y, theta};
+
+
+                CallRequest callRequest = new CallRequest();
+                CallMethodRequest methodRequest = new CallMethodRequest();
+                callRequest.setMethodsToCall(new CallMethodRequest[] {methodRequest});
+                methodRequest.setMethodId(n1);
+                methodRequest.setObjectId(n);
+
+                Float cords_x = 4.0f;
+                Variant cords_x_InVariant = new Variant(cords_x);
+                Float cords_y = 2.0f;
+                Variant cords_y_InVariant = new Variant(cords_y);
+                Float cords_ang = -45.0f;
+                Variant cords_ang_InVariant = new Variant(cords_ang);
+                methodRequest.setInputArguments( new Variant[] {cords_x_InVariant, cords_y_InVariant, cords_ang_InVariant});
+
+                System.out.println("Methods to Call: ----- " + callRequest.getMethodsToCall()[0]);
+                //System.out.println("Output Arguments: ----------" + methodRequest.getInputArguments()[0]);
+                CallResponse res1 = mySession.Call(callRequest);
+                System.out.println("Call Response:- " + res1);
+
+
+
+
+
+                //methodRequest.setObjectId(n);
+//                methodRequest.setInputArguments(new Variant[]{x, y, theta});
+//                System.out.println("MethodID: " + methodRequest.getMethodId());
+//                System.out.println("Lenght of InputArguments: " + methodRequest.getInputArguments().length);
+//                System.out.println("ObjectID: " + methodRequest.getObjectId());
+
+
+//                //CallRequest callRequest = new CallRequest();
+//                CallMethodRequest methodRequest = new CallMethodRequest();
+//                callRequest.setMethodsToCall(new CallMethodRequest[] {methodRequest});
+//                methodRequest.setMethodId(MyServerExample.LIST_SOLVERS);
+//                CallResponse res = myChannel.Call(callRequest);
+//                System.out.println(res);
+//                int l = calres.getInputArgumentResults().length;
+//                System.out.println("InputArguments result: ");
+//                for(int i =0; i < l; i++){
+//                    System.out.println(calres.getInputArgumentResults()[i]);
+//                }
+
                 // Write a variable. In this case the same variable read is set to 0
-                WriteValue writeValue = new WriteValue(n, Attributes.Value, null,
-                        new DataValue((new Variant(value))));
-                System.out.println("Write Value: " + value.toString());
-                WriteResponse wresponse =  mySession.Write(null, writeValue);
-                System.out.println("Write Response: " + wresponse);
+//                WriteValue writeValue = new WriteValue(n, Attributes.Value, null,
+//                        new DataValue(new Variant(v)));
+//                //System.out.println("Write Value: " + value.toString());
+//                WriteResponse wresponse =  mySession.Write(null, writeValue);
+//                StatusCode[] wres = wresponse.getResults();
+//                System.out.println(wresponse);
+//                System.out.println(wres);
 //
 //
-//                // Close the session
+                // Close the session
                 mySession.close();
                 mySession.closeAsync();
 //
-                return result;
+                return res1.toString();
             } catch (Exception e) {
                 e.printStackTrace();
                 return "Connection Failed!!";
             }
         }
+
 //
         @Override
         protected void onPostExecute(String result){
