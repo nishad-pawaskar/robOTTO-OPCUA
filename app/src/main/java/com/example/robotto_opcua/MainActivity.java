@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements
 
     TextView textView;
     ListView connection_list;
+    ProgressDialog progressDialog;
     LinearLayout AddConnectionbtn;
     String[] sName, sURI;
     String endpturi;
@@ -68,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements
     SQLiteDatabase robottodb;
     public static EndpointDescription endpoint;
     public static ApplicationDescription applicationDescription;
-    public static final String SIM_RESULT = "com.example.robotto_opcua.SIM_RESULT";
 
     // Bouncy Castle encryption
     static { Security.insertProviderAt(new
@@ -107,6 +108,11 @@ public class MainActivity extends AppCompatActivity implements
         connection_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                progressDialog = new ProgressDialog(MainActivity.this);
+                progressDialog.show();
+                progressDialog.setContentView(R.layout.progressdial);
+                progressDialog.getWindow().setBackgroundDrawableResource(
+                        android.R.color.transparent);
                 for(int i = 0; i < NumberOfConnections; i++){
                     if(position == i){
                         endpturi = sURI[position];
@@ -158,10 +164,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void getData(String ServerName, String ServerURI) {
         boolean isInserted = opcRobotto_db.newconnectiondata(ServerName, ServerURI);
-        if(isInserted)
-            Toast.makeText(MainActivity.this, "New Connection added", Toast.LENGTH_LONG).show();
+        if(isInserted) {
+            this.recreate();
+            Toast.makeText(MainActivity.this, "New Connection added",
+                    Toast.LENGTH_LONG).show();
+        }
         else
-            Toast.makeText(MainActivity.this, "Can't add New Connection", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Can't add New Connection",
+                    Toast.LENGTH_LONG).show();
 
     }
 
@@ -231,10 +241,13 @@ public class MainActivity extends AppCompatActivity implements
         protected void onPostExecute(String result){
             if(connected){
                 Intent intent = new Intent(MainActivity.this, Activity1.class);
-                intent.putExtra(SIM_RESULT, result);
+                progressDialog.dismiss();
+                //intent.putExtra(SIM_RESULT, result);
                 startActivity(intent);
             }else {
-                Toast.makeText(MainActivity.this,"Connection Failed. Try again later!!", Toast.LENGTH_LONG).show();
+                progressDialog.dismiss();
+                Toast.makeText(MainActivity.this,
+                        "Connection Failed. Try again later!!", Toast.LENGTH_LONG).show();
             }
         }
     }

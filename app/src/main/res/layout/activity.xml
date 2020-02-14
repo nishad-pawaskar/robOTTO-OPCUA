@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity1">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:id="@+id/name"
+        android:text="TELEPORT_ABSOLUTE"
+        android:textSize="30dp"
+        android:textColor="#000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/values"
+        android:layout_below="@+id/name"
+        android:layout_marginTop="30dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/x_layout"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X : "
+            android:textSize="24sp"
+            android:layout_weight="0.2"
+            android:textColor="#000000"
+            android:gravity="center" />
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/x_cord"
+            android:inputType="numberDecimal"
+            android:layout_weight="0.5"
+            android:hint="Enter a float value"
+            android:textSize="20sp"
+            android:textAlignment="center" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/y_layout"
+        android:layout_below="@+id/x_layout"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Y : "
+            android:textSize="24sp"
+            android:layout_weight="0.2"
+            android:gravity="center"
+            android:textColor="#000000" />
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/y_cord"
+            android:inputType="numberDecimal"
+            android:layout_weight="0.5"
+            android:hint="Enter a float value"
+            android:textSize="20sp"
+            android:textAlignment="center" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/theta_layout"
+        android:layout_below="@+id/y_layout"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Theta : "
+            android:textSize="24sp"
+            android:layout_weight="0.06"
+            android:gravity="center"
+            android:textColor="#000000" />
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/theta_cord"
+            android:inputType="numberDecimal"
+            android:layout_weight="0.5"
+            android:hint="Enter a float value"
+            android:textSize="20sp"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    </LinearLayout>
+
+    <!--<TextView
+        android:id="@+id/text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        android:textSize="64sp"
+        android:layout_marginTop="150dp"
+        android:layout_centerHorizontal="true"/>-->
+    <Button
+        android:id="@+id/button_enter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/values"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="Enter"
+        android:onClick="connect"
+        android:enabled="false"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/colorPrimary" />
+
+    <!--<Button
+        android:id="@+id/button_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_read"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="#E91E63"
+        android:text="STOP"
+        android:textColor="@android:color/white" />-->
+</RelativeLayout>

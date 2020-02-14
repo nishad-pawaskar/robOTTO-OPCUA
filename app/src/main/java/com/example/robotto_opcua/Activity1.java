@@ -5,8 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.opcfoundation.ua.application.Client;
@@ -42,29 +45,59 @@ import java.util.List;
 import java.util.Locale;
 
 public class Activity1 extends AppCompatActivity {
-    TextView text_view;
-    Button Stop_btn;
+    EditText x_val, y_val, theta_val;
+    Button Enter;
+    String x_string, y_string, theta_string;
     boolean Run;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_1);
+        setContentView(R.layout.activity);
 
-        text_view = findViewById(R.id.text_view);
-        Stop_btn = findViewById(R.id.button_stop);
+//        text_view = findViewById(R.id.text_view);
+        Enter = findViewById(R.id.button_enter);
+        x_val = findViewById(R.id.x_cord);
+        y_val = findViewById(R.id.y_cord);
+        theta_val = findViewById(R.id.theta_cord);
 
-        Intent intent = getIntent();
-        String text = intent.getStringExtra(MainActivity.SIM_RESULT);
-        text_view.setText(text);
+        x_val.addTextChangedListener(valueswatcher);
+        y_val.addTextChangedListener(valueswatcher);
+        theta_val.addTextChangedListener(valueswatcher);
 
-        Stop_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Run = false;
-            }
-        });
+
+//        Intent intent = getIntent();
+//        String text = intent.getStringExtra(MainActivity.SIM_RESULT);
+//        text_view.setText(text);
+
+//        Stop_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Run = false;
+//            }
+//        });
     }
+
+    private TextWatcher valueswatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            x_string = x_val.getText().toString().trim();
+            y_string = y_val.getText().toString().trim();
+            theta_string = theta_val.getText().toString().trim();
+
+            Enter.setEnabled(!x_string.isEmpty() || !y_string.isEmpty() || !theta_string.isEmpty());
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
 
     public void connect(View view){
         Run = true;
@@ -91,6 +124,7 @@ public class Activity1 extends AppCompatActivity {
 
             //Create Client Application Instance Certificate
             try {
+//                System.out.println("xString: " + x_string + "\nyString: " + y_string + "\nthetaString: " + theta_string);
                 KeyPair myClientApplicationInstanceCertificate = ExampleKeys.getCert(
                         getApplicationContext(), appDescription);
 
@@ -154,11 +188,14 @@ public class Activity1 extends AppCompatActivity {
                 methodRequest.setObjectId(n);
 
                 //Input Arguments for Turtlesim teleop_absolute
-                Float cords_x = 4.0f;
+//                Float cords_x = 8.0f;
+                Float cords_x = Float.valueOf(x_string);
                 Variant cords_x_InVariant = new Variant(cords_x);
-                Float cords_y = 2.0f;
+//                Float cords_y = 2.0f;
+                Float cords_y = Float.valueOf(y_string);
                 Variant cords_y_InVariant = new Variant(cords_y);
-                Float cords_ang = -45.0f;
+                Float cords_ang = Float.valueOf(theta_string);
+//                Float cords_ang = 180.0f;
                 Variant cords_ang_InVariant = new Variant(cords_ang);
                 methodRequest.setInputArguments( new Variant[] {cords_x_InVariant, cords_y_InVariant, cords_ang_InVariant});
 //                System.out.println("Input Arguments: ----------" + methodRequest.getInputArguments()[0]);
@@ -178,7 +215,7 @@ public class Activity1 extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result){
-            text_view.setText(result);
+//            text_view.setText(result);
 //            if (Run){
 //                new ConnectionAsyncTask().execute();
 //            }
